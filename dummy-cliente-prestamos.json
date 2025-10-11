@@ -1,0 +1,49 @@
+{
+  "nombres": "John",
+  "apPaterno": "Doe",
+  "apMaterno": "Smith",
+  "telefono": "5566775432",
+   "numTarjetaCuenta": "",
+    "banco": "",
+    "prestamos": [{
+    "fechaGeneracion": "2025-10-06",
+    "fechaPrimerPago": "2025-10-15",
+    "montoSolicitado": 1000,
+    "quincenas": 6,
+    "pagoQuincenal": 233,
+    "totalPagar": 1398,
+    "saldoPendiente": 1165,
+    "esIndividual": false,
+    "finalizado": false,
+    "pagos": [{
+        "numPago": 1,
+        "fechaPago": "2025-10-15",
+        "pagado": false
+    },
+    {
+        "numPago": 2,
+        "fechaPago": "2025-10-31",
+        "pagado": false
+    },
+    {
+        "numPago": 3,
+        "fechaPago": "2025-11-15",
+        "pagado": false
+    },
+    {
+        "numPago": 4,
+        "fechaPago": "2025-11-30",
+        "pagado": false
+    },
+    {
+        "numPago": 5,
+        "fechaPago": "2025-12-15",
+        "pagado": false
+    },
+    {
+        "numPago": 6,
+        "fechaPago": "2025-12-31",
+        "pagado": false
+    }]
+  }]
+}

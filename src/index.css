@@ -84,3 +84,10 @@ button:focus-visible {
   max-height: 60vh;
   overflow-y: auto;
 }
+
+.form-label-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+}

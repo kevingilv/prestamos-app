@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Button, Table, Modal, Form, ListGroup } from "react-bootstrap";
-import { UserOutlined, DollarCircleOutlined, ScheduleOutlined } from "@ant-design/icons";
+import { UserOutlined, DollarCircleOutlined, ScheduleOutlined, PlusOutlined, CreditCardOutlined } from "@ant-design/icons";
 import { db } from "../services/firebase";
 import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 import { formatCardNumber } from "../utils/helpers";
+import FloatingActionButton from '../components/FloatingActionButton'; 
 
 function addDaysISO(startISO, days) {
   const dt = new Date(startISO);
@@ -48,7 +49,7 @@ export default function Prestamos() {
     e.preventDefault();
     // find client name
     const cliente = clientes.find(c => c.id === form.clienteId);
-    const clientNombre = cliente ? cliente.nombre : "";
+    const clientNombre = cliente ? cliente.nombres + ' ' + cliente.apPaterno : ""; 
     const total = Number(form.montoPorPago) * Number(form.pagosTotales);
 
     // create loan
@@ -121,11 +122,13 @@ export default function Prestamos() {
 
   return (
     <div>
-      <div className="d-flex justify-content-between mb-3">
-        <h4>Préstamos</h4>
-        <Button onClick={() => setShow(true)}>Nuevo préstamo</Button>
-        {/*<Button onClick={test}>Test</Button>*/}
-      </div>
+      <div className="d-flex justify-content-between mb-3 align-items-center"> {/* Added align-items-center */}
+          <h4 className="d-flex align-items-center"> {/* Added d-flex and align-items-center */}
+            <CreditCardOutlined style={{ marginRight: '8px', fontSize: '1em' }} />
+            Préstamos
+          </h4>
+        </div>
+      
 
       <div className="table-responsive-container">
         <Table striped>
@@ -144,6 +147,9 @@ export default function Prestamos() {
         </tbody>
         </Table>
       </div>
+
+      {/* Floating Action Button for adding new loan */}
+      <FloatingActionButton onClick={() => setShow(true)} icon={<PlusOutlined />} />
 
       <Modal show={show} onHide={() => setShow(false)}>
         <Form onSubmit={handleAddPrestamo}>

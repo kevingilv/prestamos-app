@@ -23,7 +23,7 @@ export default function App() {
           <Route path="/register" element={<Register />} />
           
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>}>
-            <Route index element={<Clientes />} />
+            <Route index element={<Prestamos />} />
             <Route path="clientes" element={<Clientes />} />
             <Route path="prestamos" element={<Prestamos />} />
             <Route path="pagos" element={<Pagos />} />

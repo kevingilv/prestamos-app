@@ -73,7 +73,7 @@ button:focus-visible {
 
 .content-container {
   max-width: 1280px;
-  margin: 5% auto 0;
+  margin: 1% auto 0;
   padding: 2rem;
   text-align: center;
   flex-grow: 1;
@@ -83,11 +83,107 @@ button:focus-visible {
   overflow-x: auto;
   max-height: 60vh;
   overflow-y: auto;
+  box-shadow: 14px 14px 20px 0 rgba(20, 20, 20, 0.3);
+  border-radius: 10px;
+}
+
+.table-responsive-container thead th {
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  z-index: 1;
 }
 
 .form-label-icon {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-weight: bold;
+}
+
+/* Material Design Scrollbar Styles */
+.table-responsive-container::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.table-responsive-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.table-responsive-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.table-responsive-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.table-responsive-container::-webkit-scrollbar-button {
+  background-color: #6e6e6e;
+  border-radius: 10px;
+  height: 12px;
+  width: 12px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.table-responsive-container::-webkit-scrollbar-button:hover {
+  background-color: #555;
+}
+
+.table-responsive-container::-webkit-scrollbar-button:vertical:start:decrement {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8' fill='white'><path d='M4 1L1 4h6L4 1z'/></svg>");
+}
+
+.table-responsive-container::-webkit-scrollbar-button:vertical:end:increment {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8' fill='white'><path d='M4 7L1 4h6L4 7z'/></svg>");
+}
+
+.table-responsive-container::-webkit-scrollbar-button:horizontal:start:decrement {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8' fill='white'><path d='M1 4l3-3v6L1 4z'/></svg>");
+}
+
+.table-responsive-container::-webkit-scrollbar-button:horizontal:end:increment {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='8' height='8' fill='white'><path d='M7 4l-3-3v6L7 4z'/></svg>");
+}
+
+.table-responsive-container::-webkit-scrollbar-button:start:decrement,
+.table-responsive-container::-webkit-scrollbar-button:end:increment {
+  display: block;
+}
+
+.table-responsive-container::-webkit-scrollbar-button:vertical:start:increment,
+.table-responsive-container::-webkit-scrollbar-button:vertical:end:decrement,
+.table-responsive-container::-webkit-scrollbar-button:horizontal:start:increment,
+.table-responsive-container::-webkit-scrollbar-button:horizontal:end:decrement {
+  display: none;
+}
+
+.fab-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000; /* Ensure it's above other content */
+}
+
+.navbar-style {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.nav-link.active {
+  color: #0d6efd !important;
+}
+
+.nav-barnd-style {
   font-weight: bold;
 }

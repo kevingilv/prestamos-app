@@ -1,18 +1,121 @@
 import React, { useEffect, useState } from "react";
 import { Button, Table, Modal, Form, ListGroup } from "react-bootstrap";
-import { UserOutlined, DollarCircleOutlined, ScheduleOutlined, PlusOutlined, CreditCardOutlined } from "@ant-design/icons";
+import { UserOutlined, DollarCircleOutlined, ScheduleOutlined, PlusOutlined, CreditCardOutlined, NotificationOutlined } from "@ant-design/icons";
 import { db } from "../services/firebase";
 import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
 import { formatCardNumber } from "../utils/helpers";
 import FloatingActionButton from '../components/FloatingActionButton'; 
+import { ToastContainer, toast } from 'react-toastify';
 
-function addDaysISO(startISO, days) {
-  const dt = new Date(startISO);
-  dt.setDate(dt.getDate() + days);
-  return dt.toISOString().slice(0,10);
-}
+/*
+prestamos: [{
+      clienteId: "",
+      fechaGeneracion: "",
+      fechaPrimerPago: "",
+      prestamo: 0,
+      numTarjetaCuenta: '',
+      plazo: {
+        pagos: 0, 
+        monto: 0    
+      },
+      totalPagar: 0,
+      saldoPendiente: 0,
+      esIndividual: false,
+      finalizado: false,
+      pagos: [{
+          numPago: 0,
+          fechaPago: "",
+          pagado: false
+      }]
+    }]
 
 
+*/
+
+const defaultLoanFormState = {
+    clienteId: "",
+    nombreCompleto: "",
+    fechaGeneracion: new Date().toISOString().split('T')[0],
+    fechaPrimerPago: "",
+    prestamo: 0,
+    numTarjetaCuenta: '',
+    plazo: {
+      pagos: 0, 
+      monto: 0    
+    },
+    totalPagar: 0,
+    saldoPendiente: 0,
+    esIndividual: false,
+    finalizado: false,
+    pagos: [{
+        numPago: 0,
+        fechaPago: "",
+        pagado: false
+    }]
+};
+/*  TODO: paymentTable
+    - Completar toda la tabla de montos y plazos
+    - Meter este json en un archivo aparte y exportarlo
+*/
+const paymentTable = [
+    {
+      prestamo: 1000,
+      plazos: [
+      {
+        pagos: 6,
+        monto: 233,
+      },
+      {
+        pagos: 8,
+        monto: 182,
+      },
+      { 
+        pagos: 10,
+        monto: 153,
+      },
+      { 
+        pagos: 12,
+        monto: 133,
+      },
+      { 
+        pagos: 14,
+        monto: 119,
+      },
+      { 
+        pagos: 16,
+        monto: 100
+      }]
+    },
+    {
+      prestamo: 1500,
+      plazos: [
+      {
+        pagos: 6, 
+        monto: 350,
+      },
+      {
+        pagos: 8,
+        monto: 273,
+      },
+      { 
+        pagos: 10,
+        monto: 228,
+      },
+      { 
+        pagos: 12,
+        monto: 195,
+      },
+      { 
+        pagos: 14,
+        monto: 176,
+      },
+      { 
+        pagos: 16,
+        monto: 157
+      }]
+    },
+  
+  ];
 
 export default function Prestamos() {
   const [clientes, setClientes] = useState([]);
@@ -21,14 +124,8 @@ export default function Prestamos() {
   const [clienteInput, setClienteInput] = useState("");
   const [sugerencias, setSugerencias] = useState([]);
   const [mostrarSugerencias, setMostrarSugerencias] = useState(false);
-  const [form, setForm] = useState({
-    clienteId: "",
-    montoPrestado: 0,
-    pagosTotales: 1,
-    montoPorPago: 0,
-    fechaInicio: new Date().toISOString().slice(0,10),
-    numTarjetaCuenta: ''
-  });
+  const [form, setForm] = useState(defaultLoanFormState);
+  const [plazos, setPlazos] = useState([]);
 
   /*
   function test(){
@@ -39,7 +136,7 @@ export default function Prestamos() {
   useEffect(() => {
     const q1 = query(collection(db, "clientes"), orderBy("nombres", "asc"));
     const unsub1 = onSnapshot(q1, snap => setClientes(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
-    const q2 = query(collection(db, "prestamos"), orderBy("fechaInicio", "desc"));
+    const q2 = query(collection(db, "prestamos"), orderBy("fechaGeneracion", "desc"));
     const unsub2 = onSnapshot(q2, snap => setPrestamos(snap.docs.map(d => ({ id: d.id, ...d.data() }))));
 
     return () => { unsub1(); unsub2(); };
@@ -49,28 +146,57 @@ export default function Prestamos() {
     e.preventDefault();
     // find client name
     const cliente = clientes.find(c => c.id === form.clienteId);
-    const clientNombre = cliente ? cliente.nombres + ' ' + cliente.apPaterno : ""; 
-    const total = Number(form.montoPorPago) * Number(form.pagosTotales);
+    const nombreCompleto = cliente ?
+       cliente.nombres + ' ' + cliente.apPaterno + ' ' + cliente.apMaterno 
+       : ""; 
+    //const total = Number(form.montoPorPago) * Number(form.pagosTotales);
+
+
 
     // create loan
     const prestamosCol = collection(db, "prestamos");
-    const loanRef = await addDoc(prestamosCol, {
+    /*const loanRef = await addDoc(prestamosCol, {
       clienteId: form.clienteId,
       clienteNombre: clientNombre,
-      montoPrestado: Number(form.montoPrestado),
+      prestamo: Number(form.prestamo),
       pagosTotales: Number(form.pagosTotales),
       montoPorPago: Number(form.montoPorPago),
       total,
-      fechaInicio: form.fechaInicio,
+      fechaPrimerPago: form.fechaPrimerPago,
       pagosRealizados: 0,
       activo: true
+    });*/
+
+    const loanRef = await addDoc(prestamosCol, {
+      clienteId: form.clienteId,
+      nombreCompleto,
+      fechaGeneracion: new Date().toISOString().split('T')[0],
+      fechaPrimerPago: '',
+      prestamo: Number(form.prestamo),
+      numTarjetaCuenta: form.numTarjetaCuenta,
+      plazo: form.plazo,
+      totalPagar: form.plazo.pagos * form.plazo.monto,
+      saldoPendiente: (form.plazo.pagos * form.plazo.monto) - form.plazo.monto,
+      esIndividual: false,
+      finalizado: false,
+      pagos: [{
+          numPago: 0,
+          fechaPago: "",
+          pagado: false
+      }]
     });
 
+    /*
+      TODO: 
+        👻 Validar si es mejor crear los pagos dentro de otra colección al igual que el prestamo 
+        🧡 Meter esta logica dentro de una Cloud Function ?
+    */
+
     // create payments for each quincena (15 días)
-    const pagosCol = collection(db, "pagos");
+    /*const pagosCol = collection(db, "pagos");
     const promises = [];
     for (let i = 1; i <= Number(form.pagosTotales); i++) {
-      const fechaPago = addDaysISO(form.fechaInicio, (i - 1) * 15);
+      const fechaPago = addDaysISO(form.fechaPrimerPago, (i - 1) * 15);
       promises.push(addDoc(pagosCol, {
         prestamoId: loanRef.id,
         clienteId: form.clienteId,
@@ -81,17 +207,12 @@ export default function Prestamos() {
         pagado: false
       }));
     }
-    await Promise.all(promises);
+    await Promise.all(promises);*/
+
+    toast.success('Préstamo creado con éxito');
 
     // reset
-    setForm({
-      clienteId: "",
-      montoPrestado: 0,
-      pagosTotales: 1,
-      montoPorPago: 0,
-      fechaInicio: new Date().toISOString().slice(0,10),
-      numTarjetaCuenta: ''
-    });
+    setForm(defaultLoanFormState);
     setClienteInput("");
     setShow(false);
   };
@@ -120,6 +241,17 @@ export default function Prestamos() {
     setMostrarSugerencias(false);
   };
 
+  const selectMonto = (monto) => {
+    const selected = paymentTable.find(p => p.prestamo === Number(monto));
+    setForm({ ...form, prestamo: selected.prestamo});
+    setPlazos(selected.plazos);
+  }
+
+  const selectPlazo = (plazo) => {
+    const selected = plazos.find(p => p.pagos === Number(plazo));
+    setForm({ ...form, plazo: selected });
+  };
+
   return (
     <div>
       <div className="d-flex justify-content-between mb-3 align-items-center"> {/* Added align-items-center */}
@@ -132,16 +264,21 @@ export default function Prestamos() {
 
       <div className="table-responsive-container">
         <Table striped>
-          <thead><tr><th>Cliente</th><th>Monto</th><th>Pagos</th><th>Por pago</th><th>Inicio</th><th>Estado</th></tr></thead>
+          <thead><tr><th>Cliente</th><th>Monto</th><th>Pagos</th><th>Pago Quicenal</th><th>Primer Pago</th><th>Fecha Generación</th><th>Estado</th><th>Notificar</th></tr></thead>
           <tbody>
           {prestamos.map(p => (
             <tr key={p.id}>
-              <td>{p.clienteNombre}</td>
-              <td>{p.montoPrestado}</td>
-              <td>{p.pagosRealizados} / {p.pagosTotales}</td>
-              <td>{p.montoPorPago}</td>
-              <td>{p.fechaInicio}</td>
-              <td>{p.activo ? "Activo" : "Cerrado"}</td>
+              <td>{p.nombreCompleto}</td>
+              <td>{p.prestamo}</td>
+              <td>{p.plazo.pagos} </td>
+              <td>${p.plazo.monto}</td>
+              <td>{p.fechaPrimerPago}</td>
+              <td>{p.fechaGeneracion}</td>
+              <td>{p.finalizado ? 
+                <span class="badge text-bg-secondary">Cerrado</span> :
+                <span class="badge text-bg-success">Activo</span>}
+              </td>
+              <td><Button variant="outline-primary" size="sm" disabled><NotificationOutlined /></Button></td>
             </tr>
           ))}
         </tbody>
@@ -179,28 +316,58 @@ export default function Prestamos() {
                <Form.Text className="text-muted">Tarjeta: {formatCardNumber(form.numTarjetaCuenta)} </Form.Text>
             </Form.Group>
 
+      
             <Form.Group className="mb-2">
-              <Form.Label className="form-label-icon">
-                <DollarCircleOutlined /> Monto
-              </Form.Label>
-              <Form.Control type="number" required value={form.montoPrestado} onChange={e => setForm({...form, montoPrestado: e.target.value})} />
+              <DollarCircleOutlined /> Monto
+              <select class="form-select" aria-label="Monto"  onChange={e => selectMonto(e.target.value)} >
+                <option selected>Seleccionar...</option>
+                  {paymentTable.map(p => (
+                  <option key={p.prestamo} value={p.prestamo}>{p.prestamo}</option>
+                ))}
+              </select>
             </Form.Group>
 
             <Form.Group className="mb-2">
+              <ScheduleOutlined /> Pagos
+              <select class="form-select" aria-label="Pagos" onChange={e => selectPlazo(e.target.value)} >
+                <option selected>Seleccionar...</option>
+                {plazos.map(plazo => (
+                  <option key={plazo.pagos} value={plazo.pagos}>{plazo.pagos} pagos de ${plazo.monto} </option>
+                ))}
+              </select>
+            </Form.Group>
+            {/*<Form.Group className="mb-2">
+              <Form.Label className="form-label-icon">
+                <DollarCircleOutlined /> Monto
+              </Form.Label>
+              <Form.Control type="number" required value={form.prestamo} onChange={e => setForm({...form, prestamo: e.target.value})} />
+            </Form.Group>*/}
+            {/*<Form.Group className="mb-2">
               <Form.Label className="form-label-icon">
                 <ScheduleOutlined /> Pagos
               </Form.Label>
               <Form.Control type="number" min="1" required value={form.pagosTotales} onChange={e => setForm({...form, pagosTotales: e.target.value})} />
-            </Form.Group>
-
+            </Form.Group>*/}
 
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={() => setShow(false)}>Cancelar</Button>
-            <Button type="submit">Crear préstamo (genera pagos)</Button>
+            <Button type="submit">Guardar</Button>
           </Modal.Footer>
         </Form>
       </Modal>
+       <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        />
     </div>
   );
 }

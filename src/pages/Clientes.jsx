@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Button, Table, Modal, Form, Row, Col } from "react-bootstrap";
-import { UserOutlined, PhoneOutlined, CreditCardOutlined, BankOutlined, EyeOutlined, SaveOutlined, PlusOutlined } from "@ant-design/icons"; // Import PlusOutlined
+import { UserOutlined, PhoneOutlined, CreditCardOutlined, BankOutlined, EyeOutlined, SaveOutlined, PlusOutlined, EditOutlined } from "@ant-design/icons"; 
 import { collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc, updateDoc } from "firebase/firestore";
 import { db } from "../services/firebase";
 import { formatCardNumber, formatPhoneNumber, allowOnlyLetters, allowOnlyNumbers, toCamelCase } from "../utils/helpers";
-import FloatingActionButton from '../components/FloatingActionButton'; // Import the FAB component
+import FloatingActionButton from '../components/FloatingActionButton'; 
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css'; // Import the CSS for react-toastify
 
 export default function Clientes() {
   const [clientes, setClientes] = useState([]);
@@ -16,28 +18,12 @@ export default function Clientes() {
 
   // Default form structure for new clients
   const defaultFormState = {
-    "nombres": "",
-    "apPaterno": "",
-    "apMaterno": "",
-    "telefono": "",
-    "numTarjetaCuenta": "",
-    "banco": "",
-    "prestamos": [{
-      "fechaGeneracion": "",
-      "fechaPrimerPago": "",
-      "montoSolicitado": 0,
-      "quincenas": 0,
-      "pagoQuincenal": 0,
-      "totalPagar": 0,
-      "saldoPendiente": 0,
-      "esIndividual": false,
-      "finalizado": false,
-      "pagos": [{
-          "numPago": 0,
-          "fechaPago": "",
-          "pagado": false
-      }]
-    }]
+    nombres: "",
+    apPaterno: "",
+    apMaterno: "",
+    telefono: "",
+    numTarjetaCuenta: "",
+    banco: "",
   };
 
   const [form, setForm] = useState(defaultFormState);
@@ -54,10 +40,12 @@ export default function Clientes() {
     e.preventDefault();
     if (!currentClient) { // Adding a new client
       await addDoc(collection(db, "clientes"), { ...form, fechaRegistro: new Date().toISOString() });
+      toast.success("Cliente agregado exitosamente!"); // Success toast for adding
       cleanModalState();
     } else if (isEditing && isFormChanged) { // Editing an existing client
       const clientRef = doc(db, "clientes", currentClient.id);
       await updateDoc(clientRef, form); // Update only the fields in the form state
+      toast.success("Cliente actualizado exitosamente!"); // Success toast for updating
       cleanModalState();
     }
   };
@@ -71,26 +59,28 @@ export default function Clientes() {
     setForm(defaultFormState); // Reset form to default
   };
 
+  /*
   const handleDelete = async (id) => {
     if (!confirm("¿Estás seguro de que deseas eliminar este cliente?")) return;
     await deleteDoc(doc(db, "clientes", id));
   };
+  */
 
   const handleViewClient = (client) => {
     setCurrentClient(client);
-    setForm({ ...client }); // Load client data into form
-    setInitialFormData({ ...client }); // Store original data
-    setIsEditing(false); // Start in view mode
-    setIsFormChanged(false); // No changes yet
+    setForm({ ...client }); 
+    setInitialFormData({ ...client }); 
+    setIsEditing(false);
+    setIsFormChanged(false); 
     setShowModal(true);
   };
 
   const handleNewClient = () => {
-    setCurrentClient(null); // No client selected
-    setForm(defaultFormState); // Reset form to default
+    setCurrentClient(null); 
+    setForm(defaultFormState);
     setInitialFormData({});
-    setIsEditing(true); // Start in edit mode for new client
-    setIsFormChanged(false); // No changes yet
+    setIsEditing(true); 
+    setIsFormChanged(false); 
     setShowModal(true);
   };
 
@@ -111,12 +101,7 @@ export default function Clientes() {
 
     setForm(prevForm => {
       const updatedForm = { ...prevForm, [name]: newValue };
-      // Check if the form has actually changed compared to the initial data
       const changed = Object.keys(initialFormData).some(key => {
-        // Special handling for nested structures like 'prestamos' if needed,
-        // but for now, we'll assume direct property comparison is sufficient for top-level fields.
-        // For simplicity, we'll compare the whole object for now.
-        // A more robust solution would compare each field individually.
         return JSON.stringify(updatedForm) !== JSON.stringify(initialFormData);
       });
       setIsFormChanged(changed);
@@ -154,10 +139,11 @@ export default function Clientes() {
   const isSaveButtonDisabled = !isEditing || !isFormChanged;
 
   return (
+    
     <div>
-      <div className="d-flex justify-content-between mb-3 align-items-center"> {/* Added align-items-center */}
-        <h4 className="d-flex align-items-center"> {/* Added d-flex and align-items-center */}
-          <UserOutlined style={{ marginRight: '8px', fontSize: '1em' }} /> {/* Added UserOutlined icon */}
+      <div className="d-flex justify-content-between mb-3 align-items-center">
+        <h4 className="d-flex align-items-center">
+          <UserOutlined style={{ marginRight: '8px', fontSize: '1em' }} /> 
           Clientes
         </h4>
       </div>
@@ -196,7 +182,6 @@ export default function Clientes() {
         </Table>
       </div>
 
-      {/* Floating Action Button for adding new client */}
       <FloatingActionButton onClick={handleNewClient} icon={<PlusOutlined />} />
 
       <Modal show={showModal} onHide={cleanModalState} size="md">
@@ -307,14 +292,18 @@ export default function Clientes() {
             </Row>
 
             {currentClient && ( // Only show edit toggle if viewing an existing client
-              <Form.Group className="mb-3">
+             
+              <div className="d-flex">
                 <Form.Check
                   type="checkbox"
                   label="¿Editar datos del cliente?"
                   checked={isEditing}
                   onChange={handleEditToggle}
                 />
-              </Form.Group>
+                <EditOutlined />
+              </div>
+                  
+          
             )}
           </Modal.Body>
           <Modal.Footer>
@@ -327,6 +316,20 @@ export default function Clientes() {
           </Modal.Footer>
         </Form>
       </Modal>
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+        />
     </div>
+
+    
   );
 }

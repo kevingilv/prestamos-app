@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import Clientes from "./pages/Clientes";
 import Prestamos from "./pages/Prestamos";
 import Pagos from "./pages/Pagos";
+import StepperExample from "./pages/StepperExample"; // Import the example page
 
 function PrivateRoute({ children }) {
   const { currentUser, loading } = useAuth();
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="clientes" element={<Clientes />} />
             <Route path="prestamos" element={<Prestamos />} />
             <Route path="pagos" element={<Pagos />} />
+            <Route path="stepper-example" element={<StepperExample />} /> {/* Add the new route */}
           </Route>
 
           <Route path="*" element={<Navigate to="/" />} />

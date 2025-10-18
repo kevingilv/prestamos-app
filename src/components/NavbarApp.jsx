@@ -28,6 +28,7 @@ export default function NavbarApp() {
               <Nav.Link as={NavLink} to="/clientes" onClick={handleNavClick}>Clientes</Nav.Link>
               <Nav.Link as={NavLink} to="/prestamos" onClick={handleNavClick}>Préstamos</Nav.Link>
               <Nav.Link as={NavLink} to="/pagos" onClick={handleNavClick}>Relación de Pagos</Nav.Link>
+              <Nav.Link as={NavLink} to="/stepper-example" onClick={handleNavClick}>Stepper Example</Nav.Link> {/* Add the new link */}
             </Nav>
             <div className="d-flex align-items-center">
               <div className="me-3">{currentUser?.email}</div>

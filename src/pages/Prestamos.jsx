@@ -275,8 +275,8 @@ export default function Prestamos() {
               <td>{p.fechaPrimerPago}</td>
               <td>{p.fechaGeneracion}</td>
               <td>{p.finalizado ? 
-                <span class="badge text-bg-secondary">Cerrado</span> :
-                <span class="badge text-bg-success">Activo</span>}
+                <span className="badge text-bg-secondary">Cerrado</span> :
+                <span className="badge text-bg-success">Activo</span>}
               </td>
               <td><Button variant="outline-primary" size="sm" disabled><NotificationOutlined /></Button></td>
             </tr>

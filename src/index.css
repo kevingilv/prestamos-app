@@ -291,3 +291,20 @@ button:focus-visible {
   padding: 20px;
   box-sizing: border-box;
 }
+
+/* Prestamos Table Styles */
+.prestamos-table tbody tr {
+  background-color: #fff; /* Set a default background color */
+  transition: background-color 0.2s ease-in-out;
+}
+
+/* Applying the style to the cells ensures it overrides default table styles */
+.prestamos-table tbody tr:hover td {
+  background-color: #0000001a; /* Darken effect on hover */
+  cursor: pointer;
+}
+
+.prestamos-table tbody tr:active td {
+  background-color: #0000002a; /* Darker effect on click */
+  transition: background-color 0.1s ease-in-out;
+}

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Table, Modal, Form, ListGroup } from "react-bootstrap";
 import { UserOutlined, DollarCircleOutlined, ScheduleOutlined, PlusOutlined, CreditCardOutlined, NotificationOutlined } from "@ant-design/icons";
 import { db } from "../services/firebase";
-import { collection, addDoc, onSnapshot, query, orderBy } from "firebase/firestore";
+import { collection, addDoc, onSnapshot, query, orderBy, writeBatch, doc } from "firebase/firestore";
 import { formatCardNumber } from "../utils/helpers";
 import { generarFechasPagos } from "../functions/pagos";
 import FloatingActionButton from '../components/FloatingActionButton';
@@ -70,17 +70,38 @@ export default function Prestamos() {
 
     
   async function crearPagosPrestamo(loanRef, montoPorPago, cantidadPagos, fechaSolicitud) {
-    const pagos = generarFechasPagos(fechaSolicitud, cantidadPagos);
+    const batch = writeBatch(db);
+    const pagosCollectionRef = collection(db, "prestamos", loanRef.id, "pagos");
+    
+    const fechasPagos = generarFechasPagos(fechaSolicitud, cantidadPagos);
 
-    for (const pago of pagos) {
-      await addDoc(collection(db, "prestamos", loanRef.id, "pagos"), {
-        ...pago,
-        monto: montoPorPago,
-        fechaCreacion: new Date().toISOString(),
-      });
-    }
+    /*for (const pago of fechasPagos) {
+        await addDoc(collection(db, "prestamos", loanRef.id, "pagos"), {
+          ...pago,
+          monto: montoPorPago,
+          fechaCreacion: new Date().toISOString(),
+        });
+      }
+    }*/
+    
+    fechasPagos.forEach((fechaPago) => {
+      const pagoDocRef = doc(pagosCollectionRef); // genera ID automático
+      batch.set(pagoDocRef, {
+        numPago: fechaPago.numPago,
+        fechaPago: fechaPago.fechaPago,
+        //numPago: index + 1,
+        //fechaPago
+        monto: Number(montoPorPago), // validar si es necesario
+        pagado: fechaPago.pagado || false,
+        //fechaCreacion: new Date().toISOString()
+        });
+    });
 
+    await batch.commit();
+    console.log(`✅ ${cantidadPagos} pagos generados correctamente`);
   }
+
+
 
   const handleAddPrestamo = async (e) => {
     e.preventDefault();
